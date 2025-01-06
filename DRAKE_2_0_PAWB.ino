@@ -16,7 +16,7 @@ const int MODE_ADDR = 0;
 //Claws pixel
 #include <Adafruit_NeoPixel.h>
 const int neopixel_pin = 8;
-Adafruit_NeoPixel spikes = Adafruit_NeoPixel(4, neopixel_pin, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel spikes = Adafruit_NeoPixel(5, neopixel_pin, NEO_GRB + NEO_KHZ800);
 
 //timer setup
 #include <Timer.h>
