@@ -1,6 +1,8 @@
 /*added on 1-5-2025
 We have enough resources to make this work but checking to see if its stable
-
+*
+*
+*
 */
 float cR = 0, cG = 0, cB = 0;  // Need to use descriptive varables....
 void soundloop(unsigned long millis, long refresh_ms, bool color, long _micinput) {
