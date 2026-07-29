@@ -1,9 +1,8 @@
 /*
- * Used Arduino Pro Mini at 5V level 16MHZ
- * Updated July 2026: modes 0-10 follow Tail/Head
+ * PAWB Pro Mini – modes 0-10 + solid color C via ASK
  */
 #if !defined(__AVR_ATmega328P__)
-#error This code is designed to run on Sparkfun's Pro Mini at 5V level 16MHZ (Sparkfun boards).
+#error Pro Mini 5V 16MHz required.
 #endif
 
 #include <EEPROM.h>
@@ -32,55 +31,29 @@ unsigned long lastime = 0;
 void setup() {
   Serial.begin(115200);
   delay(500);
-  Serial.println(__FILE__);
-  Serial.println(__DATE__);
-  Serial.println(__TIME__);
-  Serial.println("Drake's PAWB's...GO! (modes 0-10)");
+  Serial.println("Drake's PAWB's...GO! (modes 0-10 + C)");
 
   pinMode(LED_BUILTIN, OUTPUT);
-
   spikes.begin();
   spikes.show();
 
-  if (!driver.init()) {
-    Serial.println("ASK init failed.");
-  }
+  if (!driver.init()) Serial.println("ASK init failed.");
 
   mode = EEPROM.read(MODE_ADDR);
-  if (mode < 0 || mode > 10) {
-    mode = 0;
-  }
-  Serial.print("Mode=");
-  Serial.println(mode);
+  if (mode < 0 || mode > 10) mode = 0;
 }
 
 void loop() {
   checkASK();
-
-  if (Serial.available() > 0) {
-    int inByte = Serial.read();
-    if (inByte == 'R') {
-      resetfading();
-    } else if (inByte == 'L') {
-      flash_lamp();
-    }
-  }
-
-  if (!flashed) {
-    sound_detect();
-  }
-
+  if (!flashed) sound_detect();
   t.update();
 }
 
 void sound_detect() {
-  // Visual modes 3-10 run continuously (match Tail behaviour)
   if (mode >= 3 && mode <= 10) {
     mode_selector(mode);
     return;
   }
-
-  // Modes 0-2: sound-reactive when mic is hot, otherwise idle fade
   if (soundmode && enableSound) {
     mode_selector(mode);
     if (millis() - lastime > 10000) {
@@ -90,7 +63,6 @@ void sound_detect() {
   } else {
     fading();
   }
-
   if (micLevel > 100) {
     soundmode = true;
     lastime = millis();
@@ -103,7 +75,6 @@ void checkASK() {
 
   if (driver.recv(buf, &buflen)) {
     digitalWrite(LED_BUILTIN, HIGH);
-
     char cmd = (char)buf[0];
 
     if (cmd == 'R') {
@@ -112,55 +83,49 @@ void checkASK() {
     } else if (cmd == 'L') {
       flash_lamp();
     } else if (cmd == 'M') {
-      // Tail sends "M0".."M9" or "MA" for mode 10
       int newMode = 0;
       if (buflen >= 2) {
         char d = (char)buf[1];
-        if (d >= '0' && d <= '9')
-          newMode = d - '0';
-        else if (d == 'A' || d == 'a')
-          newMode = 10;
-        else {
-          // fallback parse
-          buf[buflen] = '\0';
-          newMode = atoi((char*)buf + 1);
-        }
+        if (d >= '0' && d <= '9') newMode = d - '0';
+        else if (d == 'A' || d == 'a') newMode = 10;
       }
       if (newMode < 0) newMode = 0;
       if (newMode > 10) newMode = 10;
       mode = newMode;
       EEPROM.write(MODE_ADDR, (byte)mode);
       resetPawModeState();
-      Serial.print("Mode=");
-      Serial.println(mode);
+    } else if (cmd == 'C') {
+      buf[buflen] = 0;
+      int r = 0, g = 0, b = 0;
+      if (sscanf((char*)buf + 1, "%d,%d,%d", &r, &g, &b) == 3) {
+        if (r < 0) r = 0; if (r > 255) r = 255;
+        if (g < 0) g = 0; if (g > 255) g = 255;
+        if (b < 0) b = 0; if (b > 255) b = 255;
+        setSolidColor((uint8_t)r, (uint8_t)g, (uint8_t)b);
+        mode = 9;
+        EEPROM.write(MODE_ADDR, 9);
+        resetPawModeState();
+      }
     } else if (cmd == 'm') {
-      // Mic value: "m1234"
       buf[0] = '0';
-      buf[buflen] = '\0';
+      buf[buflen] = 0;
       micLevel = atol((char*)buf);
     }
-
     digitalWrite(LED_BUILTIN, LOW);
   }
 }
 
 void flash_lamp() {
-  turn_all_on();
-  digitalWrite(LED_BUILTIN, HIGH);
+  for (uint16_t i = 0; i < spikes.numPixels(); i++)
+    spikes.setPixelColor(i, spikes.Color(150, 150, 150));
+  spikes.show();
   flashed = true;
   t.after(100, turn_all_off);
 }
 
 void turn_all_off() {
   for (uint16_t i = 0; i < spikes.numPixels(); i++)
-    spikes.setPixelColor(i, spikes.Color(0, 0, 0));
+    spikes.setPixelColor(i, 0);
   spikes.show();
   flashed = false;
-  digitalWrite(LED_BUILTIN, LOW);
-}
-
-void turn_all_on() {
-  for (uint16_t i = 0; i < spikes.numPixels(); i++)
-    spikes.setPixelColor(i, spikes.Color(150, 150, 150));
-  spikes.show();
 }
