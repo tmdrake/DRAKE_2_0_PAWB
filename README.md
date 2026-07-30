@@ -16,6 +16,11 @@ Arduino Pro Mini (5V / 16 MHz) **paw / claw** firmware.
 
 ASK: `M0`–`M9` / `MA`, `L`, `R`, `m####` (mic).
 
+## Repo contents
+
+Mostly `.ino` + text. Vendored libraries required for the build are welcome.  
+See [REPO.md](https://github.com/tmdrake/DRAKE_2_0_TAIL/blob/main/REPO.md).
+
 ## Firmware team
 https://github.com/tmdrake/DRAKE_2_0_TAIL/blob/main/FIRMWARE_NOTES.md  
 https://github.com/tmdrake/DRAKE_2_0_TAIL/blob/main/SYSTEM.md
