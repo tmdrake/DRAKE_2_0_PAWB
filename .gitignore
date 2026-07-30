@@ -1,0 +1,16 @@
+# Source + docs only — no binary artifacts
+*.pdf
+*.PDF
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bin
+*.elf
+*.hex
+*.zip
+build/
+.pio/
+.vscode/
+.idea/
+.DS_Store

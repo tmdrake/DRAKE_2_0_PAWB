@@ -1,23 +1,11 @@
 # DRAKE_2_0_PAWB
 
-Arduino Pro Mini (5V / 16 MHz) **paw / claw** firmware.
+Arduino Pro Mini paw/claw firmware — ASK RX, modes 0–10.
 
-- 5× NeoPixels pin 8
-- ASK RX @ 2000 baud on A0 (same rate as Tail TX pin 17)
-- **Modes 0–10 non-blocking** (follow Tail over ASK)
+## Repo policy
 
-## Modes
+**No binary files** in git. Source (`.ino`) and markdown only.
 
-| ID | Name |
-|----|------|
-| 0–2 | Sound Phase, Distinct, VU |
-| 3–8 | Rainbow, Comet, Breath, Fire, Sparkle, Wave |
-| 9–10 | Solid, Off |
-
-ASK: `M0`–`M9` / `MA`, `L`, `R`, `m####` (mic).
-
-## Firmware team
-https://github.com/tmdrake/DRAKE_2_0_TAIL/blob/main/FIRMWARE_NOTES.md  
-https://github.com/tmdrake/DRAKE_2_0_TAIL/blob/main/SYSTEM.md
+See Tail [SYSTEM.md](https://github.com/tmdrake/DRAKE_2_0_TAIL/blob/main/SYSTEM.md).
 
 http://tmdrake.com
