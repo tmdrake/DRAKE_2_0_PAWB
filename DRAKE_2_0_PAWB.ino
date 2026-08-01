@@ -50,20 +50,27 @@ void loop() {
 }
 
 void sound_detect() {
+  // M2 VU: continuous (mic pulses via ASK "m####" from Tail)
+  if (mode == 2) {
+    mode_selector(mode);
+    return;
+  }
+  // M3–10: free-run animations (mode only via ASK M#)
   if (mode >= 3 && mode <= 10) {
     mode_selector(mode);
     return;
   }
+  // M0/M1: gated on ASK mic pulses (Tail sends pulse-only, not continuous)
   if (soundmode && enableSound) {
     mode_selector(mode);
-    if (millis() - lastime > 10000) {
+    if (millis() - lastime > 2500) {
       soundmode = false;
       resetBrightnessandDirection();
     }
   } else {
-    fading();
+    fading();  // idle keep-alive pulse
   }
-  if (micLevel > 100) {
+  if (enableSound && micLevel > 15) {  // excess from Tail; low threshold
     soundmode = true;
     lastime = millis();
   }

@@ -120,7 +120,14 @@ void mode_selector(int m) {
     case 0: soundloop(millis(), 50, false, micLevel); break;
     case 1: soundloop(millis(), 50, true, micLevel); break;
     case 2: {
-      int n = map(constrain(micLevel, 0, 800), 0, 800, 0, spikes.numPixels());
+      // micLevel = Tail excess (0 quiet); peak-ish map for 5 LEDs
+      static long vuPeak = 40;
+      long lvl = micLevel;
+      if (lvl < 0) lvl = 0;
+      if (lvl > vuPeak) vuPeak = lvl;
+      else if (vuPeak > 40) vuPeak = (vuPeak * 95) / 100;
+      if (vuPeak < 40) vuPeak = 40;
+      int n = map(constrain(lvl, 0, vuPeak), 0, vuPeak, 0, spikes.numPixels());
       for (int i = 0; i < spikes.numPixels(); i++)
         spikes.setPixelColor(i, i < n ? spikes.Color(150, 0, 255) : 0);
       spikes.show();
